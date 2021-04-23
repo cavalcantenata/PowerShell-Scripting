@@ -1,0 +1,14 @@
+
+#alterando nome da maquina
+$tag = wmic bios get serialnumber /format:list
+
+$tag.split('=') -replace 'SerialNumber' | Out-File test2.txt
+$text = gc test2.txt |Select-String [a-z]
+
+
+$tagdell= echo  $text'-SPT'
+
+$tagdell
+
+#Ingressa máquina no dominio
+Add-Computer –DomainName souzamaas.local -NewName $tagdell
