@@ -11,4 +11,4 @@ $tagdell= echo  $text'-SPT'
 $tagdell
 
 #Ingressa máquina no dominio
-Add-Computer –DomainName souzamaas.local -NewName $tagdell
+Add-Computer –DomainName domain.local -NewName $tagdell
