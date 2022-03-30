@@ -1,0 +1,236 @@
+Converter certificado
+certutil -encode c:\sourcerequestcert.req c:\targetrequestcert.cer
+ 
+=======================================================================
+ 
+Export One Folder
+New-MailboxExportRequest -Mailbox mailboxname -IncludeFolders "#SentItems#" -ContentFilter {(Sent -lt '07/31/2011') -and (Sent -gt '07/01/2011')} -FilePath \\servername\folder\SentItems.PST
+ 
+ 
+==========================================================
+ 
+Aumentar a retenção do Tracking LOG
+C:Windowssystem32>set-transportserver <server-name> -messagetrackinglogmaxage 365
+ 
+==========================================================
+ 
+Criar contato oculto
+ 
+C:\> Set-MailContact <contact alias> -HiddenFromAddressListsEnabled $false
+ 
+==========================================================
+ 
+Configurar resposta automática agendada:
+Set-MailboxAutoReplyConfiguration renato@dominio.com.br –AutoReplyState Scheduled –StartTime “04/27/2016” –EndTime “04/28/2016” –ExternalMessage "Nos dias 27 e 28/04, estarei com acessos restritos aos emails e celular. Havendo necessidade, fazer contato pelo email outro@dominio.com.br" –InternalMessage "Nos dias 27 e 28/04, estarei com acessos restritos aos emails e celular. Havendo necessidade, fazer contato pelo email outro@dominio.com.br"
+ 
+==========================================================
+ 
+Usuários criados nos ultimos 248 dias    
+get-mailbox -resultsize unlimited | Where-object {$_.WhenCreated -gt (get-date).addDays(-248)}
+ 
+==========================================================
+ 
+Ultimo Logon:
+import-module active directorty
+Get-ADUser -filter * -Properties * | Select-Object Name, LastLogonDate, Enabled  | Export-Csv
+ 
+==========================================================
+ 
+Verificar espaço utilizado da MB
+Get-MailboxStatistics -Identity semiramis.costa | ft DisplayName, ItemCount, { $_.TotalItemSize.Value.ToGB() }, { $_.TotalItemSize.Value.ToMB() }
+ 
+==========================================================
+ 
+Listar Mailboxes Ativas:
+Get-mailbox -resultsize unlimited | where-object{$_.IsMailboxEnabled -eq $true}
+ 
+==========================================================
+ 
+Rastrear mensagens
+Get-messagetrackinglog -recipients aa@aa.com.br -start "00/00/0000 00:00" | select, eventid, sender, recipients, timestamp
+ 
+[PS] C:\>Get-MessageTrackingLog -Recipients recipient@dominio -ResultSize unlimited -Start 12/14/2015 -EventId Deliver | Select-Object Timestamp,Sender, {$_.recipients},{$_.MessageSubject} | export-csv C:\Users\renato.junior\Desktop\Report\export2.csv
+ 
+==========================================================
+ 
+Rastrar mensagens por dominio:
+Get-MessageTrackingLog -eventid DELIVER -server "SERVER" -resultsize unlimited -start 11/05/2016 |where-object {$_.Sender -like "*@itau-unibanco.com.br"}
+ 
+==========================================================
+ 
+Listar Mailboxes com o status "Disconnect"
+Get-MailboxStatistics | where-object { $_.DisconnectDate -ne $null } | Select DisplayName,MailboxGuid
+ 
+==========================================================
+ 
+Remover mailbox disconnected
+Remove-StoreMailbox -Database MBD01 -Identity "2ab32ce3-fae1-4402-9489-c67e3ae173d3" -MailboxState Disabled
+ 
+==========================================================
+ 
+Verificar WhiteSpace nas mailboxes Databases
+ 
+Get-MailboxDatabase -Status | ft name,databasesize,availablenewmailboxspace -auto
+ 
+==========================================================
+ 
+Listar quotas por mailbox
+ 
+Get-Mailbox | Select-Object Displayname,Database,@{Name='TotalItemSize'; Expression={[String]::join(";",((Get-MailboxStatistics -identity $_.identity).TotalItemSize))}},@{Name='ItemCount'; Expression={[String]::join(";",((Get-MailboxStatistics -identity $_.identity).ItemCount))}},IssueWarningQuota, ProhibitSendQuota
+ 
+==========================================================
+ 
+Listar quotas por databases
+ 
+Get-Mailbox | Select-Object Displayname,Database,@{Name='TotalItemSize'; Expression={[String]::join(";",((Get-MailboxStatistics -identity $_.identity).TotalItemSize))}},@{Name='ItemCount'; Expression={[String]::join(";",((Get-MailboxStatistics -identity $_.identity).ItemCount))}}, @{Name='IssueWarningQuota'; Expression={[String]::join(";",((Get-MailboxDatabase -identity ($_.identity).DataBase).IssueWarningQuota))}},@{Name='ProhibitSendQuota '; Expression={[String]::join(";",((Get-MailboxDatabase -identity ($_.identity).DataBase).ProhibitSendQuota))}} | export-csv -path "c:\mailboxsizes.csv"
+ 
+==========================================================
+ 
+Verificar tamanho da mailbox
+ 
+Get-MailboxStatistics -Database "database" | select DisplayName, TotalItemSize, DatabaseName
+ 
+==========================================================
+ 
+Habilitar gerar PST
+New-ManagementRoleAssignment –Role "Mailbox Import Export" –User Administrator
+ 
+==========================================================
+ 
+Exportar vários PSTs de uma vez.
+O arquivo useralias.txt, nesse caso deve estar dentro da unidade C:\
+ 
+$useralias = get-content useralias.txt
+foreach($mail in $useralias)
+{
+New-MailboxExportRequest -Mailbox $mail -FilePath "\\nomedoservidor\teste\$mail.pst"
+}
+ 
+ 
+ 
+==========================================================
+ 
+Verificar andamento da solicitação
+Get-MailboxExportRequest -Status InProgress | Get-MailboxExportRequestStatistics
+ 
+ 
+==========================================================
+ 
+Aumentar limite de regras do outlook
+Para determinar o limite de tamanho das regras em uma caixa de correio, execute o seguinte comando no Shell de gerenciamento do Exchange:
+Get-mailbox-identity “mailbox” | FL *rulesquota*
+ 
+==========================================================
+ 
+Se o limite de tamanho atual for menor que 256 quilobytes, executadas o seguinte comando para aumentar o limite de tamanho para 256 KB:
+Set-mailbox - identity “mailbox” -RulesQuota 256kb
+ 
+Observação: Este é um atributo de cache do Active Directory, desta forma, as alterações podem levar até duas horas para serem visualizadas.
+ 
+=============================================================================
+ 
+Alterar Autodiscover ExternalURL / InternalURL
+Listar as configurações de Autodiscover
+Get-AutodiscoverVirtualDirectory |fl
+ 
+==========================================================
+ 
+Setar as configurações de Autodiscover para URL externa
+Set-AutodiscoverVirtualDirectory -Identity 'autodiscover (default Web Site)' -ExternalUrl https://mail.domain/Autodiscover/autodiscover.xml
+ 
+==========================================================
+ 
+Setar as configurações de Autodiscover para URL interna
+Set-AutodiscoverVirtualDirectory -Identity 'autodiscover (default Web Site)' -InternalUrl https://localhost.domain/Autodiscover/autodiscover.xml
+ 
+=============================================================================
+ 
+Criar grupos de distribuição
+New-DistributionGroup -Name 'displayname do grupo' -OrganizationalUnit 'dominio/unidade organizacional' -Alias 'alias.sem.espaco' -PrimarySmtpAddress endereco.smtp.primario@dominio.com
+ 
+=============================================================================
+ 
+Verificar andamento MoveRequest
+O comando abaixo lista o status da movimentação de mailboxes ordenando a porcentagem de forma decrescente.
+Get-MoveRequestStatistics -MoveRequestQueue “MailboxDatabase” | Sort-Object PercentComplete -Descending
+ 
+=============================================================================
+ 
+Montar/Desmontar MailboxDatabase
+Para montar uma mailbox database
+Mount-Database -Identity “MailboxDatabase"
+ 
+Para desmontar uma mailbox database
+Dismount-Database -Identity “MailboxDatabase"
+ 
+=============================================================================
+ 
+Habilitar/desabilitar log circular
+Para habilitar o log circular (necessário desmontar a mailbox database após executar o comando abaixo).
+Set-MailboxDatabase -Identity "MailboxDatabase" -CircularLoggingEnabled:$true
+ 
+==========================================================
+ 
+Para desabilitar o log circular (necessário desmontar a mailbox database após executar o comando abaixo).
+Set-MailboxDatabase -Identity "MailboxDatabase" -CircularLoggingEnabled:$false
+ 
+ 
+=============================================================================
+ 
+Erro ao realizar move de MailboxDatabase em DAG
+Para correção do problema abaixo:
+Error: Move for mailbox ‘/o=First Organization/ou=First Administrative Group/cn=Recipients/cn=user’ is stalled because DataMoveReplicationConstraint is not satisfied for the database ‘Database’ (agent MailboxDatabaseReplication). Failure Reason: Database  does not satisfy constraint SecondCopy. Some database copies are behind.
+Executar o comando abaixo
+Set-MailboxDatabase -Identity "MailboxDatabase" -DataMoveReplicationConstraint None
+ 
+Quando concluir o move a configuração deve ser alterada para o valor original conforme abaixo:
+Set-MailboxDatabase -Identity "MailboxDatabase" -DataMoveReplicationConstraint SecondCopy
+ 
+=============================================================================
+ 
+Realizar Move Request buscando um arquivo com os usuários
+O comando abaixa realiza a leitura de um arquivo TXT com o alias de todas as mailboxes e move para outra MailboxDatabase, além disso o mesmo ignora até 100 arquivo corrompidos, porém, se houver a necessidade este valor pode ser alterado.
+ 
+Get-Content "C:\arquivo.txt" | New-MoveRequest -TargetDatabase "MailboxDatabase" -BadItemLimit 100 -AcceptLargeDataLoss -Confirm:$false
+ 
+=============================================================================
+ 
+Adicionar permissões a salas de reunião
+Add-MailboxPermission -Identity “alias” -user “user.alias” -AccessRights PermissoesNecessarias
+ 
+Segue abaixo a lista de permissões que podem ser concedidas:
+FullAccess
+DeleteItem
+ReadPermission
+ChangePermission
+ChangeOwner
+ 
+=============================================================================
+ 
+Listar permissões de Public Folder Client
+Este comando exporta um arquivo com todas as permissões trazendo todas as informações devido ao parâmetro -AutoSize.
+ 
+Get-PublicFolderClientPermission -Identity "\public_folder" | ft -Property * -AutoSize | Out-String -Width 4096 >> C:\Permissions.txt
+ 
+=============================================================================
+ 
+Criar Public Folder
+Para criar uma Public Folder na raíz.
+ 
+New-PublicFolder “New Public Folder”
+ 
+Para criar uma Public Folder dentro de uma public folder existente, devemos utilizar o comando abaixo, vamos levar em consideração que a public folder raiz tem o nome de “Clientes Diversos”:
+ 
+New-PublicFolder “New Public Folder” -Path “\Clientes Diversos”
+ 
+=============================================================================
+ 
+Criar Grupos no Active Directory
+Por padrão após a string -Path devemos utilizar o DistinguishedName da OU que irá armazenar o grupo.
+Devemos definir o -GroupScope que neste caso poderá ser DomainLocal, Global ou Universal.
+Devemos definir o -GroupCategory que poderá ser Security ou Distribution.
+ 
+New-ADGroup -Path "OU=Nome OU,DC=dominio,DC=local" -Name "Nome do Grupo" -GroupScope Global -GroupCategory Security
+ 
+$name = get-content .\arquivo.txt
+Salva as informações dentro na memória pra ser executada
