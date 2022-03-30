@@ -1,0 +1,18 @@
+#novo comando
+
+$vlist = Get-Content C:\Users\user\Documents\emails.txt
+
+$reportemail=@()
+$report=@()
+
+foreach ($id in $vlist) {
+$mbx = Get-MailboxStatistics -Identity $id | select displayname, totalitemsize, TotalDeletedItemSize, databasename
+$reportemail=[pscustomobject]@{
+    displayname               = $mbx.displayname
+    totalitemsize             = $mbx.totalitemsize
+    TotalDeletedItemSize      = $mbx.TotalDeletedItemSize
+    databasename              = $mbx.databasename
+    }
+$report = $report + $reportemail
+}
+$report | Export-Csv -Path C:\Users\NatãSilvaSOUZAMAAS\Desktop\teste2021.csv
