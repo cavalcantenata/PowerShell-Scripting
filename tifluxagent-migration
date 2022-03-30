@@ -1,0 +1,21 @@
+#desinstalando agent do tiflux
+$MyApp = Get-WmiObject -Class Win32_Product | Where-Object{$_.Name -eq "Ti Service And Agent"}
+$MyApp.Uninstall()
+
+#removendo pastas do tiflux
+Remove-Item 'C:\Program Files (x86)\TiFlux' -Recurse
+
+#deleting registry
+Remove-Item -Path HKLM:\SOFTWARE\tiflux -Recurse 
+
+#Download new tiflux #
+
+$url = "http:/site.com.br/tiflux/smbti.msi"
+
+$output = "C:\smbti.msi"
+
+Start-BitsTransfer -Source $url -Destination $output
+
+#Installing the .msi file 
+
+msiexec.exe /I c:\smbti.msi /quiet
