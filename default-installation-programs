@@ -1,0 +1,70 @@
+## Deve colocar true/false para instalar ou não ##
+##Acrobat e Anydesk podem precisar de interação ##
+## Por conta disso são executados primeiro ##
+$java = $true
+$chrome = $true
+$firefox = $true
+$acrobat = $true
+$winrar = $true
+$teamviewer = $false
+$teams = $true
+$anydesk = $true
+$7zip = $false
+$cutepdf = $true
+$bitdefender = $false
+
+#mostra TAG DELL
+#$tagdell = wmic bios get serialnumber
+#$tagdell
+
+#captura novo nome da máquina
+#$nomemaq = Read-Host "Favor digitar nome da máquina"
+
+
+
+#Ingressa máquina no dominio
+#Add-Computer –DomainName domain.local
+
+#altera hostname
+#Rename-Computer -NewName $nomemaq -DomainCredential domain.local\administrador
+
+#Cria usuario local para administração
+New-LocalUser "admin.user" -Password (ConvertTo-SecureString -String 'PASSWORDHERE' -AsPlainText -Force) -FullName "User - IT Team"
+Add-LocalGroupMember -Group Administradores -Member domain.adminti
+
+#Instala adobe reader
+if ($acrobat){$LocalTempDir = $env:TEMP; $AcrobatInstaller = "readerdc_br_xa_cra_install.exe"; (new-object    System.Net.WebClient).DownloadFile("http://ardownload.adobe.com/pub/adobe/reader/win/AcrobatDC/1900820071/AcroRdrDC1900820071_pt_BR.exe", "$LocalTempDir\$AcrobatInstaller"); & "$LocalTempDir\$AcrobatInstaller" /i /a; $Process2Monitor =  "reader_br_xa_cra_install"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$AcrobatInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala java
+if ($java){$LocalTempDir = $env:TEMP; $JavaInstaller = "JavaSetup8u291.exe"; (new-object    System.Net.WebClient).DownloadFile("https://javadl.oracle.com/webapps/download/AutoDL?BundleId=244582_d7fc238d0cbf4b0dac67be84580cfb4b", "$LocalTempDir\$JavaInstaller"); & "$LocalTempDir\$JavaInstaller" /s; $Process2Monitor =  "JavaSetup8u291.exe"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$JavaInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala chrome
+if ($chrome){$LocalTempDir = $env:TEMP; $ChromeInstaller = "ChromeInstaller.exe"; (new-object    System.Net.WebClient).DownloadFile("http://dl.google.com/chrome/install/375.126/chrome_installer.exe", "$LocalTempDir\$ChromeInstaller"); & "$LocalTempDir\$ChromeInstaller" /silent /install; $Process2Monitor =  "ChromeInstaller"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$ChromeInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala mozila
+if ($firefox){$LocalTempDir = $env:TEMP; $FirefoxInstaller = "Firefox Installer.exe"; (new-object    System.Net.WebClient).DownloadFile("https://download.mozilla.org/?product=firefox-stub&os=win&lang=pt-BR", "$LocalTempDir\$FirefoxInstaller"); & "$LocalTempDir\$FirefoxInstaller" /s; $Process2Monitor =  "Firefox Installer"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$FirefoxInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala winrar
+if ($winrar){$LocalTempDir = $env:TEMP; $WinrarInstaller = "winrar-x64-591.exe"; (new-object    System.Net.WebClient).DownloadFile("https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-591.exe", "$LocalTempDir\$WinrarInstaller"); & "$LocalTempDir\$WinrarInstaller" /S; $Process2Monitor =  "WinRAR"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$WinrarInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala winzip
+if ($teamviewer){$LocalTempDir = $env:TEMP; $TeamViewerInstaller = "TeamViewer_Setup.exe"; (new-object    System.Net.WebClient).DownloadFile("https://download.teamviewer.com/download/TeamViewer_Setup.exe", "$LocalTempDir\$TeamViewerInstaller"); & "$LocalTempDir\$TeamViewerInstaller" /S; $Process2Monitor =  "TeamViewer_Setup"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$TeamViewerInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala teams
+if ($teams){$LocalTempDir = $env:TEMP; $TeamsInstaller = "Teams_windows_x64.exe"; (new-object    System.Net.WebClient).DownloadFile("https://go.microsoft.com/fwlink/p/?LinkID=869426&clcid=0x416&culture=pt-br&country=BR&lm=deeplink&lmsrc=groupChatMarketingPageWeb&cmpid=directDownloadWin64", "$LocalTempDir\$TeamsInstaller"); & "$LocalTempDir\$TeamsInstaller" /s; $Process2Monitor =  "Teams_windows_x64"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$TeamsInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala 7zip
+if($7zip){$LocalTempDir = $env:TEMP; $7zipInstaller = "7z1900-x64.exe"; (new-object    System.Net.WebClient).DownloadFile("https://www.7-zip.org/a/7z1900-x64.exe", "$LocalTempDir\$7zipInstaller"); & "$LocalTempDir\$7zipInstaller" /S; $Process2Monitor =  "7zipInstaller"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$7zipInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+#instala CutePdf
+if($cutepdf){$LocalTempDir = $env:TEMP; $cutepdfInstaller = "CuteWriter.exe"; (new-object    System.Net.WebClient).DownloadFile("https://www.cutepdf.com/download/CuteWriter.exe", "$LocalTempDir\$cutepdfInstaller"); & "$LocalTempDir\$cutepdfInstaller" /S; $Process2Monitor =  "cutepdfInstaller"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$cutepdfInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+
+#Installing msi file.
+
+$url = "link to download a .msi file"
+
+$output = "C:\fshti.msi"
+
+Start-BitsTransfer -Source $url -Destination $output
+
+#Installing the .msi file 
+
+msiexec.exe /I c:\fshti.msi /quiet
+
+#instala anydesk
+if ($anydesk){$LocalTempDir = $env:TEMP; $AnyDeskInstaller = "AnyDesk.exe"; (new-object    System.Net.WebClient).DownloadFile("https://download.anydesk.com/AnyDesk.exe", "$LocalTempDir\$AnyDeskInstaller"); & "$LocalTempDir\$AnyDeskInstaller"; $Process2Monitor =  "AnyDesk"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$AnyDeskInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)}
+
+
+
